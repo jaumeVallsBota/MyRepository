@@ -1,1 +1,13 @@
 Repository to hold some python scripts that I've been working as I've done some courses 
+
+Change_Color_Of_An_Image:
+
+Attention: Needs to be improved asking for some input for the image and the font. CUrrently the path needs to be set manually.
+
+The script takes an image and a font, and creates a sheet 3x3 of the image modified. We also add some text that shows how much is that image modified.
+
+An example of this is:
+
+<img width="209" alt="image" src="https://github.com/jaumeVallsBota/Python_scripts/assets/150121531/c1d1e9b1-7994-408e-a22e-7b77c7422d72">
+
+
