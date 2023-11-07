@@ -1,0 +1,73 @@
+# -*- coding: utf-8 -*-
+"""
+Editor de Spyder
+
+Este es un archivo temporal.
+"""
+
+#Different impotrts
+import PIL
+from PIL import Image, ImageFont, ImageDraw
+
+#ATTENTION: IMAGE AND FONT NEED TO BE SET BEFORE STARTING
+#Read the image and convert it into RGB
+image = Image.open("")
+image = image.convert("RGB")
+#Read the font
+font = ImageFont.truetype('',50)
+
+#initializating some values
+x=0
+y=0
+variations = [0.1, 0.5, 0.9]
+
+#list of images modified
+images_To_Modify = []
+
+#loop to modify the images: for range: 0 is red, 1 is green, 2 is blue
+#Variation is the multiplier that will modify the colors
+for color_channel in range(3):
+        for variation in variations:
+            #New image with more height to include the string identifying the variation (in here the object is created, but there is no image)
+            new_image = PIL.Image.new(image.mode,(image.width,int(image.height*1.1)))
+            #We add the given image into the image
+            new_image.paste(image,(x,y))
+            #From class draw we create the draw object where we will insert the string, and we give the value of the string and the font
+            draw = ImageDraw.Draw(new_image)
+            draw.text((0,image.height),"channel " + str(color_channel) + " intensity " + str(variation),font=font, fill=(255,255,255))
+            #we convert the image into RGB
+            new_image = new_image.convert("RGB")
+            #splitting into the three colors
+            r,g,b= new_image.split()
+            if color_channel == 0:
+                #modifies all the pixels in red multiplying for the variation
+                r = r.point(lambda z:z*variation)
+            if color_channel == 1:
+                #modifies all the pixels in green multiplying for the variation
+                g = g.point(lambda z:z*variation)
+            if color_channel == 2:
+                #modifies all the pixels in blue multiplying for the variation
+                b = b.point(lambda z:z*variation)
+            #merging the three modified colors into a new image and add them in the list of modified images
+            out_new_image = Image.merge("RGB",(r,g,b))
+            images_To_Modify.append(out_new_image)
+
+ 
+ #we create the contact sheet taking into reference that the sheet must have the image repeated (3X3)         
+output_width = 3 * image.width
+output_height = 3 * image.height
+contact_sheet = Image.new(image.mode, (output_width, output_height))     
+
+reference_image = images_To_Modify[0]
+
+for img in images_To_Modify:
+    contact_sheet.paste(img, (x,y))
+    if x + reference_image.width == contact_sheet.width:
+        x=0
+        y = y + reference_image.height
+    else:
+        x = x + reference_image.width
+        
+# resize and display the contact sheet
+contact_sheet = contact_sheet.resize((int(contact_sheet.width/2),int(contact_sheet.height/2) ))
+display(contact_sheet)
