@@ -53,12 +53,13 @@ for color_channel in range(3):
             images_To_Modify.append(out_new_image)
 
  
- #we create the contact sheet taking into reference that the sheet must have the image repeated (3X3)         
-output_width = 3 * image.width
-output_height = 3 * image.height
-contact_sheet = Image.new(image.mode, (output_width, output_height))     
-
+ #we create the contact sheet taking into reference that the sheet must have the image repeated (3X3) 
 reference_image = images_To_Modify[0]
+output_width = 3 * reference_image.width
+output_height = 3 * reference_image.height
+contact_sheet = Image.new(reference_image.mode, (output_width, output_height))     
+
+
 
 for img in images_To_Modify:
     contact_sheet.paste(img, (x,y))
