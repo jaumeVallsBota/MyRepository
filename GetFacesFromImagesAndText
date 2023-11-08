@@ -1,0 +1,93 @@
+import zipfile
+import math
+from PIL import Image
+import pytesseract
+import cv2 as cv
+import numpy as np
+from io import BytesIO
+
+# loading the face detection classifier
+face_cascade = cv.CascadeClassifier('readonly/haarcascade_frontalface_default.xml')
+#save the images in a list to be treated later
+list_of_images = []
+list_of_texts = []
+list_of_list_of_faces = []
+list_of_filenames = []
+zip_file_to_read ="readonly/small_img.zip"
+
+#get the images
+def getImage(name):
+    with zip_file.open(name) as file_to_read:
+                # Read the content in bytes
+                content = file_to_read.read()
+                # Create image from the file
+                image = Image.open(BytesIO(content)).convert("RGB")
+    return image
+#get the text of the images
+def getText(image):
+    text = pytesseract.image_to_string(image)
+    return text
+#get the faces of an image
+def getBoundingBoxes(image):
+    faces = []
+    open_cv_image = np.array(image) 
+    img_g = cv.cvtColor(open_cv_image, cv.COLOR_BGR2GRAY)
+    faces_bounding_boxes = face_cascade.detectMultiScale(img_g, 1.3, 5)
+    for x,y,w,h in faces_bounding_boxes:
+        face = image.crop((x,y,x+w,y+h))
+        faces.append(face)
+    return faces
+
+# read the zipFiles
+with zipfile.ZipFile(zip_file_to_read, 'r') as zip_file:
+    # read the list of the names
+    zip_files_names = zip_file.infolist()
+    for file_name in zip_files_names:    
+        try:
+            image = getImage(file_name.filename)
+            list_of_filenames.append(file_name.filename)
+            list_of_images.append(image)
+            text_of_image = getText(image).replace('\n','')
+            list_of_texts.append(text_of_image)
+            list_of_faces = getBoundingBoxes(image)
+            list_of_list_of_faces.append(list_of_faces)
+        except KeyError:
+            print(f"The file '{file_name.filename}' is not in the ZIP file.")
+
+
+#Create a dictionary with the image, the text and the bounding boxes of each image
+list_of_dictionaries= []
+
+for i in range(len(zip_files_names)):
+    aux_dictio = {'Image': list_of_images[i], "Text": list_of_texts[i], 'Faces': list_of_list_of_faces[i],"ImageName":list_of_filenames[i]}
+    list_of_dictionaries.append(aux_dictio)
+    
+    #Function to look for a word and get the information
+def search(keyword):
+    for dictio in list_of_dictionaries:
+        if keyword in dictio["Text"]:
+            #check if the list of faces is bigger than 0
+            print("Result found in file {}".format(dictio["ImageName"]))
+            if len(dictio["Faces"]) > 0:                
+                h = math.ceil(len(dictio['Faces'])/5)
+                contact_sheet=Image.new('RGB',(500, 100*h))
+                x = 0
+                y = 0
+
+                for face in dictio["Faces"]:
+                    face.thumbnail((100,100))
+                     
+                    contact_sheet.paste(face, (x, y))
+
+                    if x + 100 == contact_sheet.width:
+                        x = 0
+                        y += 100
+                    else:
+                        x += 100
+
+                display(contact_sheet)
+            else:
+                print("But there were no faces in that file!")
+                
+#small Files
+search("Christopher")
