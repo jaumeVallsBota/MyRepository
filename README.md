@@ -11,3 +11,6 @@ An example of this is:
 <img width="209" alt="image" src="https://github.com/jaumeVallsBota/Python_scripts/assets/150121531/c1d1e9b1-7994-408e-a22e-7b77c7422d72">
 
 
+DetectFaceInImages.py
+
+The script takes an image (in the example used, newspaper image), and it shows the faces found in the newspaper image in case one of the given words is found in the text of the newspaper.
