@@ -24,16 +24,30 @@ from langchain.vectorstores import DocArrayInMemorySearch
 from IPython.display import display, Markdown
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.engine.url import URL
-
+from langchain.indexes import VectorstoreIndexCreator
+from langchain.evaluation.qa import QAGenerateChain
 #The file path needs to be modified 
 file = 'GuiaEgipto.pdf'
 loader = PyPDFLoader(file_path=file)
-
-from langchain.indexes import VectorstoreIndexCreator
+data = loader.load()
 
 index = VectorstoreIndexCreator(
     vectorstore_cls=DocArrayInMemorySearch
 ).from_loaders([loader])
+llm = ChatOpenAI(temperature = 0.0, model=llm_model)
+qa = RetrievalQA.from_chain_type(
+    llm=llm, 
+    chain_type="stuff", 
+    retriever=index.vectorstore.as_retriever(), 
+    verbose=True,
+    chain_type_kwargs = {
+        "document_separator": "<<<<>>>>>"
+    }
+)
+example_gen_chain = QAGenerateChain.from_llm(ChatOpenAI(model=llm_model))
+new_examples = example_gen_chain.apply_and_parse(
+    [{"doc": t} for t in data[:5]]
+)
 
 query ="Qué restaurantes hay recomendados en el cairo según esta guía?"
 
