@@ -49,6 +49,21 @@ new_examples = example_gen_chain.apply_and_parse(
     [{"doc": t} for t in data[:5]]
 )
 
+#To create questions and evaluate them 
+predictions = qa.apply(new_examples)
+eval_chain = QAEvalChain.from_llm(llm)
+graded_outputs = eval_chain.evaluate(new_examples, predictions)
+
+for i, eg in enumerate(new_examples):
+    print(f"Example {i}:")
+    print("Question: " + predictions[i]['query'])
+    print("Real Answer: " + predictions[i]['answer'])
+    print("Predicted Answer: " + predictions[i]['result'])
+    print("Predicted Grade: " + graded_outputs[i]['text'])
+    print()
+
+
+#Query that you want to use
 query ="Qué restaurantes hay recomendados en el cairo según esta guía?"
 
 response = index.query(query)
