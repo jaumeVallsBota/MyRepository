@@ -1,0 +1,37 @@
+import win32com.client
+import os
+
+# Función para extraer los archivos adjuntos de los correos no leídos y copiarlos a una carpeta
+def extraer_adjuntos(correo, carpeta_especial, carpeta_destino):
+    outlook = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
+    try:
+        carpeta = outlook.Folders.Item(1).Folders[carpeta_especial] #si está en subcarpetas:outlook.Folders.Item(1).Folders[carpeta_especial].Folders[carpeta2]....
+    except Exception as e:
+        print(f"No se pudo acceder a la carpeta especial '{carpeta_especial}': {e}")
+        return
+
+    correos_encontrados = 0  # Contador de correos encontrados
+
+    for mensaje in carpeta.Items:
+        if correo in mensaje.Subject and mensaje.UnRead:
+            adjuntos = mensaje.Attachments
+            for adjunto in adjuntos:
+                adjunto.SaveAsFile(os.path.join(carpeta_destino, adjunto.FileName))
+            correos_encontrados += 1
+
+    if correos_encontrados > 0:
+        print(f"{correos_encontrados} correos no leídos encontrados. Archivos adjuntos copiados correctamente.")
+    else:
+        print(f"No se encontró ningún correo no leído en la carpeta especial con el asunto '{correo}'.")
+
+# Correo del que deseas extraer los archivos adjuntos -> AJUSTAR
+correo_a_buscar = "Asunto del correo"
+
+# Nombre de la carpeta especial donde se buscará el correo -> AJUSTAR
+carpeta_especial = "Nombre de la carpeta especial"
+
+# Carpeta de destino donde se copiarán los archivos adjuntos -> AJUSTAR
+carpeta_destino = "C:/Ruta/De/Carpeta/Destino"
+
+# Llamada a la función para extraer los archivos adjuntos
+extraer_adjuntos(correo_a_buscar, carpeta_especial, carpeta_destino)
