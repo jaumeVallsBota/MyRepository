@@ -1,0 +1,1 @@
+Invoke-ScriptAnalyzer -Path .\MyScript.ps1 | Export-Csv -Path .\AnalysisReport.csv -NoTypeInformation
