@@ -86,11 +86,40 @@ function Get-LogColors {
 # Inicializar el archivo de log en una carpeta específica con un nombre personalizado
 Initialize-Log -BasePath "/home/jaume/Documents/" -CustomName "ExampleReadATextWithPowershell"
 
-$a = Get- -Path "/home/jaume/Documents/Python_scripts/Powershell/Rowling, J. K. - Harry Potter y la piedra filosofal.pdf" | Select-String "Harry" 
+$Gryffindor = Get-Content -Path "/home/jaume/Documents/Python_scripts/Powershell/HarryPotter-PiedraFilosofal.txt" | Select-String "Gryffindor" 
+$Slytherin = Get-Content -Path "/home/jaume/Documents/Python_scripts/Powershell/HarryPotter-PiedraFilosofal.txt" | Select-String "Slytherin" 
+$Ravenclaw = Get-Content -Path "/home/jaume/Documents/Python_scripts/Powershell/HarryPotter-PiedraFilosofal.txt" | Select-String "Ravenclaw" 
+$Hufflepuff = Get-Content -Path "/home/jaume/Documents/Python_scripts/Powershell/HarryPotter-PiedraFilosofal.txt" | Select-String "Hufflepuff" 
 
-$pdfPath = "/home/jaume/Documents/Python_scripts/Powershell/HarryPotter-PiedraFilosofal.pdf"
-$textPath = "/home/jaume/Documents/Python_scripts/Powershell/HarryPotter-PiedraFilosofal.txt"
-Start-Process -NoNewWindow -Wait -FilePath "pdftotext" -ArgumentList "$pdfPath $textPath"
-$texto = Get-Content $textPath
-Write-Output $texto
+Import-Module PSWriteHTML -Verbose
 
+
+$countGry = $Gryffindor.Count
+$countSly = $Slytherin.Count
+$countHuff = $Hufflepuff.Count
+$countRav = $Ravenclaw.Count
+
+$PythonScript = @"
+import matplotlib.pyplot as plt
+
+# Datos
+casas = ['Gryffindor', 'Slytherin', 'Ravenclaw', 'Hufflepuff']
+menciones = [$countGry, $countSly, $countRav, $countHuff]
+
+# Crear gráfico
+plt.bar(casas, menciones, color=['red', 'green', 'blue', 'yellow'])
+plt.xlabel('Casas')
+plt.ylabel('Menciones')
+plt.title('Menciones por Casa')
+plt.savefig('menciones_por_casa.png')
+"@
+
+# Guardar el script temporalmente
+$TempFile = "/tmp/generate_chart.py"
+Set-Content -Path $TempFile -Value $PythonScript
+
+# Ejecutar el script de Python
+python3 $TempFile
+
+# Confirmar resultado
+Write-Output "Gráfico generado: menciones_por_casa.png"
