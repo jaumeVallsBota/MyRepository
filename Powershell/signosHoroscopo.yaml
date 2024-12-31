@@ -1,0 +1,32 @@
+# Signos tradicionales del horóscopo
+signos_tradicionales:
+  Aries: "21/03 - 19/04"
+  Tauro: "20/04 - 20/05"
+  Géminis: "21/05 - 20/06"
+  Cáncer: "21/06 - 22/07"
+  Leo: "23/07 - 22/08"
+  Virgo: "23/08 - 22/09"
+  Libra: "23/09 - 22/10"
+  Escorpio: "23/10 - 21/11"
+  Sagitario: "22/11 - 21/12"
+  Capricornio: "22/12 - 19/01"
+  Acuario: "20/01 - 18/02"
+  Piscis: "19/02 - 20/03"
+
+# Signos del horóscopo incluyendo los nuevos
+signos_con_nuevos:
+  Capricornio: "20/01 - 15/02"
+  Acuario: "16/02 - 11/03"
+  Piscis: "12/03 - 26/03"
+  Cetus: "27/03 - 28/03"
+  Aries: "29/03 - 13/05"
+  Tauro: "14/05 - 21/06"
+  Géminis: "22/06 - 20/07"
+  Cáncer: "21/07 - 09/08"
+  Leo: "10/08 - 15/09"
+  Virgo: "16/09 - 30/10"
+  Libra: "31/10 - 22/11"
+  Escorpio: "23/11 - 29/11"
+  Ofiuco: "30/11 - 17/12"
+  Sagitario: "18/12 - 19/01"
+
