@@ -1,11 +1,13 @@
 Import-Module powershell-yaml
 
+# Obtener la ubicación del script
+$scriptDirectory = $PSScriptRoot
 
+# Cambiar al directorio del script
+Set-Location -Path $scriptDirectory
 #Leer el Yaml de los horoscopos
-$pathYaml = "/home/jaume/Documents/Python_scripts/Powershell/signosHoroscopo.yaml" 
-# Ruta al archivo de configuración
-$configPath = "/home/jaume/Documents/Python_scripts/Powershell/config.json"
 
+$configPath = Join-Path $scriptDirectory "config.json"
 # Cargar configuración
 if (-Not (Test-Path $configPath)) {
     throw "El archivo de configuración no existe. Por favor, crea un archivo config.json con la API Key."
@@ -13,6 +15,9 @@ if (-Not (Test-Path $configPath)) {
 $config = Get-Content -Path $configPath | ConvertFrom-Json
 
 # Usar la API Key del archivo de configuración
+$pathYaml = $config.yamlPath 
+# Ruta al archivo de configuración
+
 $apiKey = $config.apiKey
 $apiUrl = "https://api.telegram.org/bot$apiKey"
 
