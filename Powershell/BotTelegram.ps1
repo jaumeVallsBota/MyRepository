@@ -17,7 +17,6 @@ $config = Get-Content -Path $configPath | ConvertFrom-Json
 # Usar la API Key del archivo de configuración
 $pathYaml = $config.yamlPath 
 # Ruta al archivo de configuración
-
 $apiKey = $config.apiKey
 $apiUrl = "https://api.telegram.org/bot$apiKey"
 
@@ -145,12 +144,10 @@ function Get-TelegramUpdates {
 }
 
 # Función para manejar comandos
-# Función para manejar comandos
 function Handle-Command {
     param (
         $chatId,
-        [string]$command,
-        [string]$additionalData
+        [string]$command
     )
     $username = $chatId.username
     if ($username -eq $null) {
