@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MiPrimerApi</name>
+    </assembly>
+    <members>
+        <member name="M:MiPrimerApi.Controllers.UsersController.Get">
+            <summary>
+            Obtiene la lista de todos los usuarios.
+            </summary>
+            <returns>Lista de usuarios</returns>
+        </member>
+        <member name="M:MiPrimerApi.Controllers.UsersController.Get(System.Int32)">
+            <summary>
+            Obtiene un usuario por su identificador.
+            </summary>
+            <param name="id">Identificador del usuario</param>
+            <returns>Usuario encontrado o 404</returns>
+        </member>
+        <member name="M:MiPrimerApi.Controllers.UsersController.Post(User)">
+            <summary>
+            Crea un nuevo usuario.
+            </summary>
+            <param name="newUser">Datos del usuario a crear</param>
+            <returns>Usuario creado con su identificador</returns>
+        </member>
+    </members>
+</doc>
