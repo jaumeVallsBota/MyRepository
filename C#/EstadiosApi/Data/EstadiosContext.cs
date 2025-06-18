@@ -14,6 +14,8 @@ namespace EstadiosApi.Data
         public DbSet<Estadio> Estadios { get; set; }
         public DbSet<Equipo> Equipos { get; set; }
 
+        public DbSet<Usuario> Usuarios { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var converter = new ValueConverter<List<string>, string>(
@@ -23,6 +25,9 @@ namespace EstadiosApi.Data
             modelBuilder.Entity<Equipo>()
                 .Property(e => e.Colores)
                 .HasConversion(converter);
+            modelBuilder.Entity<Estadio>()
+                .Property(e => e.FechaInauguracion)
+                .HasColumnType("timestamp without time zone");
         }
 
     }

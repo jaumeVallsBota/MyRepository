@@ -31,6 +31,6 @@ namespace EstadiosApi.Models
 
         // Relación con Equipo
         public int? EquipoId { get; set; }
-        public Equipo Equipo { get; set; }
+        public Equipo? Equipo { get; set; }
     }
 }

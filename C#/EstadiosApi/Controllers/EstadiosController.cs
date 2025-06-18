@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EstadiosApi.Data;
 using EstadiosApi.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EstadiosApi.Controllers
 {
@@ -20,14 +21,14 @@ namespace EstadiosApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Estadio>>> GetEstadios()
         {
-            return await _context.Estadios.ToListAsync();
+            return await _context.Estadios.Include(e => e.Equipo).ToListAsync();
         }
 
         // GET: api/Estadios/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Estadio>> GetEstadio(int id)
         {
-            var estadio = await _context.Estadios.FindAsync(id);
+            var estadio = await _context.Estadios.Include(e => e.Equipo).FirstOrDefaultAsync(e => e.Id == id);;
 
             if (estadio == null)
             {
@@ -38,8 +39,9 @@ namespace EstadiosApi.Controllers
         }
 
         // POST: api/Estadios
+        [Authorize]
         [HttpPost]
-        public async Task<ActionResult<Estadio>> PostEstadio(Estadio estadio)
+        public async Task<ActionResult<Estadio>> PostEstadio([FromBody]Estadio estadio)
         {
             _context.Estadios.Add(estadio);
             await _context.SaveChangesAsync();
@@ -48,6 +50,7 @@ namespace EstadiosApi.Controllers
         }
 
         // PUT: api/Estadios/5
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutEstadio(int id, Estadio estadio)
         {
@@ -78,6 +81,7 @@ namespace EstadiosApi.Controllers
         }
 
         // DELETE: api/Estadios/5
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEstadio(int id)
         {

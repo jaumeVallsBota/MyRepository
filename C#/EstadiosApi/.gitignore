@@ -1,0 +1,67 @@
+# Build results
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.swp
+
+# Visual Studio Code settings
+.vscode/
+
+# Rider / JetBrains IDEs
+.idea/
+
+# Dotnet-specific
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# ASP.NET Core environment variables
+.env
+
+# Database files (if local)
+*.db
+*.sqlite
+
+# JWT token files (if you store temp tokens in file — opcional)
+*.token
+
+# Publish outputs
+publish/
+*.publish.xml
+
+# Test results
+TestResults/
+
+# NuGet packages
+*.nupkg
+packages/
+.nuget/
+
+# VS for Mac
+*.userprefs
+
+# Generated files
+wwwroot/dist/
+wwwroot/node_modules/
+
+# Swashbuckle/Swagger
+swagger/
+
+# Docker local files
+docker-compose.override.yml
+
+# Secrets and config overrides
+secrets.json
+appsettings.Development.json

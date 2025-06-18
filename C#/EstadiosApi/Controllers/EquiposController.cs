@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EstadiosApi.Data;
 using EstadiosApi.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EstadiosApi.Controllers
 {
@@ -38,6 +39,7 @@ namespace EstadiosApi.Controllers
         }
 
         // POST: api/Equipos
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Equipo>> PostEquipo(Equipo equipo)
         {
@@ -48,6 +50,7 @@ namespace EstadiosApi.Controllers
         }
 
         // PUT: api/Equipos/5
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutEquipo(int id, Equipo equipo)
         {
@@ -78,6 +81,7 @@ namespace EstadiosApi.Controllers
         }
 
         // DELETE: api/Equipos/5
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEquipo(int id)
         {
