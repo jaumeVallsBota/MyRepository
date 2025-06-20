@@ -13,7 +13,6 @@ namespace EstadiosApi.Data
         }
         public DbSet<Estadio> Estadios { get; set; }
         public DbSet<Equipo> Equipos { get; set; }
-
         public DbSet<Usuario> Usuarios { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

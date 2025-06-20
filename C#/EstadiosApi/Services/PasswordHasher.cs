@@ -1,18 +1,19 @@
-using System.Security.Cryptography;
-using System.Text;
+using BCrypt.Net;
 
 namespace EstadiosApi.Services
 {
     public static class PasswordHasher
     {
+        // Hashea la contraseña
         public static string HashPassword(string password)
         {
-            using (var sha256 = SHA256.Create())
-            {
-                var bytes = Encoding.UTF8.GetBytes(password);
-                var hash = sha256.ComputeHash(bytes);
-                return Convert.ToBase64String(hash);
-            }
+            return BCrypt.Net.BCrypt.HashPassword(password);
+        }
+
+        // Verifica si una contraseña introducida coincide con el hash guardado
+        public static bool VerifyPassword(string password, string hashedPassword)
+        {
+            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
     }
 }

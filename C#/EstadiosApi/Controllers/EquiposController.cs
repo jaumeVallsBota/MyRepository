@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using EstadiosApi.Data;
 using EstadiosApi.Models;
 using Microsoft.AspNetCore.Authorization;
+using EstadiosApi.Services;
 
 namespace EstadiosApi.Controllers
 {
@@ -10,25 +11,33 @@ namespace EstadiosApi.Controllers
     [ApiController]
     public class EquiposController : ControllerBase
     {
-        private readonly EstadiosContext _context;
+        private readonly IEquiposService _equiposService;
 
-        public EquiposController(EstadiosContext context)
+        public EquiposController(IEquiposService equipoService)
         {
-            _context = context;
+            _equiposService = equipoService;
         }
 
         // GET: api/Equipos
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Equipo>>> GetEquipos()
         {
-            return await _context.Equipos.ToListAsync();
+            try
+            {
+                var result = await _equiposService.GetEquiposAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // GET: api/Equipos/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Equipo>> GetEquipo(int id)
         {
-            var equipo = await _context.Equipos.FindAsync(id);
+            var equipo = await _equiposService.GetEquipoAsync(id);
 
             if (equipo == null)
             {
@@ -43,10 +52,10 @@ namespace EstadiosApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Equipo>> PostEquipo(Equipo equipo)
         {
-            _context.Equipos.Add(equipo);
-            await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetEquipo), new { id = equipo.Id }, equipo);
+            var nuevoEquipo = await _equiposService.CreateEquipoAsync(equipo);
+
+            return CreatedAtAction(nameof(GetEquipo), new { id = nuevoEquipo.Id }, nuevoEquipo);
         }
 
         // PUT: api/Equipos/5
@@ -54,28 +63,10 @@ namespace EstadiosApi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutEquipo(int id, Equipo equipo)
         {
-            if (id != equipo.Id)
-            {
-                return BadRequest();
-            }
 
-            _context.Entry(equipo).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Equipos.Any(e => e.Id == id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            var equipoactualizado = await _equiposService.UpdateEquipoAsync(id, equipo);
+            if (!equipoactualizado)
+                return NotFound();
 
             return NoContent();
         }
@@ -85,14 +76,10 @@ namespace EstadiosApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEquipo(int id)
         {
-            var equipo = await _context.Equipos.FindAsync(id);
-            if (equipo == null)
-            {
-                return NotFound();
-            }
+            var eliminado = await _equiposService.DeleteEquipoAsync(id);
 
-            _context.Equipos.Remove(equipo);
-            await _context.SaveChangesAsync();
+             if (!eliminado)
+                return NotFound();
 
             return NoContent();
         }

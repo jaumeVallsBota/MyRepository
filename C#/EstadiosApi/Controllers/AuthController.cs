@@ -8,78 +8,46 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
+
 namespace EstadiosApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly EstadiosContext _context;
-        private readonly IConfiguration _configuration;
+        private readonly IAuthService _authService;
 
-        public AuthController(EstadiosContext context, IConfiguration configuration)
+        public AuthController(IAuthService authService)
         {
-            _context = context;
-            _configuration = configuration;
+            _authService = authService;
         }
 
         [HttpPost("register")]
         public IActionResult Register(RegisterDto request)
         {
-            if (_context.Usuarios.Any(u => u.NombreUsuario == request.NombreUsuario))
+            try
             {
-                return BadRequest("Este nombre de usuario ya existe.");
+                var result = _authService.Register(request);
+                return Ok(result);
             }
-
-            var usuario = new Usuario
+            catch (Exception ex)
             {
-                NombreUsuario = request.NombreUsuario,
-                PasswordHash = PasswordHasher.HashPassword(request.Password)
-            };
-
-            _context.Usuarios.Add(usuario);
-            _context.SaveChanges();
-
-            return Ok("Usuario registrado correctamente.");
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("login")]
         public IActionResult Login(LoginDto request)
         {
-            var usuario = _context.Usuarios.SingleOrDefault(u => u.NombreUsuario == request.NombreUsuario);
-
-            if (usuario == null)
-                return Unauthorized("Usuario no encontrado.");
-
-            var passwordHash = PasswordHasher.HashPassword(request.Password);
-
-            if (usuario.PasswordHash != passwordHash)
-                return Unauthorized("Contraseña incorrecta.");
-
-            var token = CreateToken(usuario);
-            return Ok(new { token });
-        }
-
-        private string CreateToken(Usuario usuario)
-        {
-            var claims = new List<Claim>
+            try
             {
-                new Claim(ClaimTypes.Name, usuario.NombreUsuario),
-                new Claim(ClaimTypes.Role, usuario.Rol)
-            };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddHours(3),
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+                var token = _authService.Login(request);
+                return Ok(new { token });
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(ex.Message);
+            }
         }
     }
 }

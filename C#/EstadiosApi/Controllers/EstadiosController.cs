@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using EstadiosApi.Data;
 using EstadiosApi.Models;
 using Microsoft.AspNetCore.Authorization;
+using EstadiosApi.Services;
 
 namespace EstadiosApi.Controllers
 {
@@ -10,43 +11,52 @@ namespace EstadiosApi.Controllers
     [ApiController]
     public class EstadiosController : ControllerBase
     {
-        private readonly EstadiosContext _context;
+        private readonly IEstadiosService _estadiosService;
 
-        public EstadiosController(EstadiosContext context)
+        public EstadiosController(IEstadiosService estadiosService)
         {
-            _context = context;
+            _estadiosService = estadiosService;
         }
+
+        
 
         // GET: api/Estadios
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Estadio>>> GetEstadios()
         {
-            return await _context.Estadios.Include(e => e.Equipo).ToListAsync();
+
+            try
+            {
+                var result = await _estadiosService.GetEstadiosAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
         }
 
         // GET: api/Estadios/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Estadio>> GetEstadio(int id)
         {
-            var estadio = await _context.Estadios.Include(e => e.Equipo).FirstOrDefaultAsync(e => e.Id == id);;
+            var estadio = await _estadiosService.GetEstadioAsync(id);
 
             if (estadio == null)
-            {
                 return NotFound();
-            }
 
-            return estadio;
+            return Ok(estadio);
+        
         }
 
         // POST: api/Estadios
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult<Estadio>> PostEstadio([FromBody]Estadio estadio)
+        public async Task<ActionResult<Estadio>> PostEstadio(Estadio estadio)
         {
-            _context.Estadios.Add(estadio);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetEstadio), new { id = estadio.Id }, estadio);
+            var nuevoEstadio = await _estadiosService.CreateEstadioAsync(estadio);
+            return CreatedAtAction(nameof(GetEstadio), new { id = nuevoEstadio.Id }, nuevoEstadio);
         }
 
         // PUT: api/Estadios/5
@@ -54,28 +64,9 @@ namespace EstadiosApi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutEstadio(int id, Estadio estadio)
         {
-            if (id != estadio.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(estadio).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!EstadioExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            var actualizado = await _estadiosService.UpdateEstadioAsync(id, estadio);
+            if (!actualizado)
+                return NotFound();
 
             return NoContent();
         }
@@ -85,21 +76,11 @@ namespace EstadiosApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEstadio(int id)
         {
-            var estadio = await _context.Estadios.FindAsync(id);
-            if (estadio == null)
-            {
+            var eliminado = await _estadiosService.DeleteEstadioAsync(id);
+            if (!eliminado)
                 return NotFound();
-            }
-
-            _context.Estadios.Remove(estadio);
-            await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool EstadioExists(int id)
-        {
-            return _context.Estadios.Any(e => e.Id == id);
         }
     }
 }

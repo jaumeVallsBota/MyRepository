@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using EstadiosApi.Services;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,6 +42,10 @@ builder.Services.AddDbContext<EstadiosContext>(options =>
 // Agregar servicios
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEquiposService, EquiposService>();
+builder.Services.AddScoped<IEstadiosService, EstadiosService>();
+
 
 builder.Services.AddSwaggerGen(c =>
 {
