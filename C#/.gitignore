@@ -65,3 +65,5 @@ docker-compose.override.yml
 # Secrets and config overrides
 secrets.json
 appsettings.Development.json
+
+CoverageReport/

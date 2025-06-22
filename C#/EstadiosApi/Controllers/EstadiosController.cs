@@ -64,6 +64,9 @@ namespace EstadiosApi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutEstadio(int id, Estadio estadio)
         {
+             // Forzamos que el estadio.Id sea siempre el de la URL:
+            estadio.Id = id;
+            
             var actualizado = await _estadiosService.UpdateEstadioAsync(id, estadio);
             if (!actualizado)
                 return NotFound();
