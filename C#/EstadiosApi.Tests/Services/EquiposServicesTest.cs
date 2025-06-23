@@ -7,6 +7,11 @@ using Xunit;
 using EstadiosApi.Data;
 using EstadiosApi.Services;
 using EstadiosApi.Models;
+using Moq;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+
+
+
 
 namespace EstadiosApi.Tests.Services
 {
@@ -14,6 +19,8 @@ namespace EstadiosApi.Tests.Services
     {
         private readonly EstadiosContext _context;
         private readonly EquiposService _equiposService;
+        private readonly Mock<EstadiosContext> _mockContext;
+        private readonly EquiposService _service;
 
         public EquiposServiceTests()
         {
@@ -22,6 +29,8 @@ namespace EstadiosApi.Tests.Services
                 .Options;
             _context = new EstadiosContext(options);
             _equiposService = new EquiposService(_context);
+            _mockContext = new Mock<EstadiosContext>(new DbContextOptionsBuilder<EstadiosContext>().Options);
+            _service = new EquiposService(_mockContext.Object);
         }
 
         [Fact]
@@ -131,8 +140,8 @@ namespace EstadiosApi.Tests.Services
             // Assert
             Assert.False(result);
         }
-    
-    
+
+
         [Fact]
         public async Task GetEquiposAsync_WhenEquiposExist_ReturnsListOfEquipos()
         {
@@ -153,4 +162,101 @@ namespace EstadiosApi.Tests.Services
             Assert.Contains(list, e => e.Nombre == "E1");
             Assert.Contains(list, e => e.Nombre == "E2");
         }
-    } }
+
+        private EquiposService CreateServiceWithDb(out EstadiosContext context)
+        {
+            var options = new DbContextOptionsBuilder<EstadiosContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            context = new EstadiosContext(options);
+            return new EquiposService(context);
+        }
+
+        [Fact]
+        public async Task UpdateEquipoAsync_WithMatchingIds_ReturnsTrue()
+        {
+            // Arrange
+            var service = CreateServiceWithDb(out var context);
+
+            var equipo = new Equipo { Id = 1, Nombre = "Equipo Original" ,AñoFundacion = 2000, Colores = new List<string> { "Negro" }, Pais = "PaisX", Ciudad = "CiudadX" };
+            context.Equipos.Add(equipo);
+            await context.SaveChangesAsync();
+
+            equipo.Nombre = "Equipo Actualizado";
+
+            // Act
+            var result = await service.UpdateEquipoAsync(1, equipo);
+
+            // Assert
+            Assert.True(result);
+        }
+
+        [Fact]
+        public async Task UpdateEquipoAsync_WithNonMatchingIds_ReturnsFalse()
+        {
+            var service = CreateServiceWithDb(out var context);
+
+            var equipo = new Equipo { Id = 1, Nombre = "Equipo Test" , AñoFundacion = 2000, Colores = new List<string> { "Negro" }, Pais = "PaisX", Ciudad = "CiudadX" };
+
+            var result = await service.UpdateEquipoAsync(2, equipo);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public async Task UpdateEquipoAsync_DbUpdateConcurrencyException_EquipoNoExiste_ReturnsFalse()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<EstadiosContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            var context = new EstadiosContext(options);
+
+            var service = new EquiposService(context);
+
+            var equipo = new Equipo { Id = 1, Nombre = "Equipo Test", AñoFundacion = 2000, Colores = new List<string> { "Negro" }, Pais = "PaisX", Ciudad = "CiudadX"  };
+            context.Equipos.Add(equipo);
+            await context.SaveChangesAsync();
+
+            // Eliminar el equipo para simular que no existe en el momento de SaveChangesAsync
+            context.Equipos.Remove(equipo);
+            await context.SaveChangesAsync();
+
+            // Act
+            var result = await service.UpdateEquipoAsync(1, equipo);
+
+            // Assert
+            Assert.False(result);
+        }
+
+
+        // Este test requiere control de concurrencia habilitado con [ConcurrencyCheck] o [Timestamp] en la entidad
+        // Actualmente EF Core InMemory no lanza DbUpdateConcurrencyException sin ello.
+        /*[Fact]
+        public async Task UpdateEquipoAsync_DbUpdateConcurrencyException_EquipoExiste_ThrowsException()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<EstadiosContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            var context = new EstadiosContext(options);
+            var service = new EquiposService(context);
+
+            var equipo = new Equipo { Id = 1, Nombre = "Equipo Test" , AñoFundacion = 2000, Colores = new List<string> { "Negro" }, Pais = "PaisX", Ciudad = "CiudadX" };
+            context.Equipos.Add(equipo);
+            await context.SaveChangesAsync();
+
+            // Forzar una excepción de concurrencia
+            context.Entry(equipo).State = EntityState.Detached;
+
+            // Act & Assert
+            await Assert.ThrowsAsync<DbUpdateConcurrencyException>(async () =>
+            {
+                await service.UpdateEquipoAsync(1, equipo);
+            });
+        }*/
+    }
+}

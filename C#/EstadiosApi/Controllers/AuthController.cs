@@ -42,7 +42,7 @@ namespace EstadiosApi.Controllers
             try
             {
                 var token = _authService.Login(request);
-                return Ok(new { token });
+                return Ok(new Dictionary<string, string> { { "token", token } });
             }
             catch (Exception ex)
             {
